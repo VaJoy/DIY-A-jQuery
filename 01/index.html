@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DIY A JQ</title>
+    <script>
+        $ = 'old $';
+        jQuery = 'old JQ'
+    </script>
+    <script src="jQuery.js"></script>
+</head>
+<body>
+
+<div>hello world</div>
+
+<script>
+    var $div = $('div');
+    $div.setBackground().setColor();
+
+    var $$$ = $.noConflict(true);
+    console.log($);  //old $
+    console.log(jQuery);  //old JQ
+    console.log($$$);  //jQuery
+</script>
+</body>
+</html>
