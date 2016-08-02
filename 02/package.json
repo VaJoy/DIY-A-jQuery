@@ -1,0 +1,18 @@
+{
+  "name": "jQuery",
+  "version": "0.0.2",
+  "description": "",
+  "main": "rollup.config.js",
+  "scripts": {
+    "install": "npm i -g",
+    "build": "node rollup.config.js"
+  },
+  "author": "VaJoy Larn",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "lodash": "^4.14.1",
+    "rollup": "^0.34.2",
+    "rollup-plugin-babel": "^2.6.1"
+  }
+}
