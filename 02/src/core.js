@@ -1,7 +1,7 @@
 /**
  * Created by vajoy on 2016/8/1.
  */
-import { class2type, toString, getProto, hasOwn, fnToString, ObjectFunctionString } from './util.js';
+import { class2type, toString, getProto, hasOwn, fnToString, ObjectFunctionString } from './var.js';
 
 var version = "0.0.1",
     jQuery = function (selector, context) {
@@ -109,6 +109,9 @@ jQuery.extend( {
         // 简单对象的构造函数等于最顶层 Object 构造函数
         Ctor = hasOwn.call( proto, "constructor" ) && proto.constructor;
         return typeof Ctor === "function" && fnToString.call( Ctor ) === ObjectFunctionString;
+    },
+    isFunction: function( obj ) {
+        return jQuery.type( obj ) === "function";
     },
     type: function( obj ) {
         if ( obj == null ) {
