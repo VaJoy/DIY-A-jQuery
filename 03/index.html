@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>DIY A JQ</title>
     <script>
         $ = 'old $';
         jQuery = 'old JQ'
     </script>
-    <script src="temp.js"></script>
-    <title>测试用</title>
+    <script src="rel/jquery.js"></script>
 </head>
 <body>
-<div>hello</div>
-<div>VaJoy</div>
+
+<div><div><span>hi</span></div></div>
+
 <script>
-    var $div = $('div');
-    console.log($div)
+    var $span = $('div').find('span');
+    console.log($span.eq(1));
 </script>
 </body>
 </html>

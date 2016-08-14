@@ -1,7 +1,7 @@
 /**
  * Created by vajoy on 2016/8/1.
  */
-import { class2type, toString, getProto, hasOwn, fnToString, ObjectFunctionString } from './var.js';
+import { slice, class2type, toString, getProto, hasOwn, fnToString, ObjectFunctionString } from './var.js';
 
 var version = "0.0.1",
     jQuery = function (selector, context) {
@@ -13,7 +13,23 @@ var version = "0.0.1",
 
 jQuery.fn = jQuery.prototype = {
     jquery: version,
+    length: 0,  // JQ实例.length 默认为0
     constructor: jQuery,
+    /**
+     * 入栈操作
+     * @param elems {Array}
+     * @returns {*}
+     */
+    pushStack: function( elems ) {  //elems是数组
+
+        // 将检索到的DOM集合转换为JQ类数组对象
+        var ret = jQuery.merge( this.constructor(), elems );  //this.constructor() 返回了一个 length 为0的JQ对象
+
+        // 添加关系链，新JQ对象的prevObject属性指向旧JQ对象
+        ret.prevObject = this;
+
+        return ret;
+    },
     setBackground: function(){
         this[0].style.background = 'yellow';
         return this
@@ -38,7 +54,7 @@ jQuery.extend = jQuery.fn.extend = function() {
         i++;
     }
 
-    if ( typeof target !== "object" && !jQuery.isFunction( target ) ) {  //修改点1
+    if ( typeof target !== "object" && !jQuery.isFunction( target ) ) {
         target = {};
     }
 
@@ -59,12 +75,12 @@ jQuery.extend = jQuery.fn.extend = function() {
                     continue;
                 }
 
-                if ( deep && copy && ( jQuery.isPlainObject( copy ) ||  //修改点2
+                if ( deep && copy && ( jQuery.isPlainObject( copy ) ||
                     ( copyIsArray = jQuery.isArray( copy ) ) ) ) {
 
                     if ( copyIsArray ) {
                         copyIsArray = false;
-                        clone = src && jQuery.isArray( src ) ? src : [];  //修改点3
+                        clone = src && jQuery.isArray( src ) ? src : [];
 
                     } else {
                         clone = src && jQuery.isPlainObject( src ) ? src : {};
@@ -82,30 +98,39 @@ jQuery.extend = jQuery.fn.extend = function() {
     return target;
 };
 
-//新增修改点1
+
 "Boolean Number String Function Array Date RegExp Object Error Symbol".split(" ").forEach(function(name){
     class2type[ "[object " + name + "]" ] = name.toLowerCase();
 });
 
-//新增修改点2
+
 jQuery.extend( {
+    merge: function( first, second ) {
+        var len = +second.length,
+            j = 0,
+            i = first.length;
+
+        for ( ; j < len; j++ ) {
+            first[ i++ ] = second[ j ];
+        }
+
+        first.length = i;
+
+        return first;
+    },
     isArray: Array.isArray,
     isPlainObject: function( obj ) {
         var proto, Ctor;
 
-        // 明显的非对象判断，直接返回false
         if ( !obj || toString.call( obj ) !== "[object Object]" ) {
             return false;
         }
 
-        proto = getProto( obj );  //获取 prototype
-
-        // 通过 Object.create( null ) 形式创建的 {} 是没有prototype的
+        proto = getProto( obj );
         if ( !proto ) {
             return true;
         }
 
-        // 简单对象的构造函数等于最顶层 Object 构造函数
         Ctor = hasOwn.call( proto, "constructor" ) && proto.constructor;
         return typeof Ctor === "function" && fnToString.call( Ctor ) === ObjectFunctionString;
     },
@@ -124,5 +149,43 @@ jQuery.extend( {
 
 });
 
+jQuery.fn.extend({
+    find: function( selector ) {  //链式支持find
+        var i, ret,
+            len = this.length,
+            self = this;
+
+        ret = this.pushStack( [] ); //转为JQ对象
+
+        for ( i = 0; i < len; i++ ) {  //遍历
+            jQuery.find( selector, self[ i ], ret );  //直接利用 Sizzle 接口，把结果注入到 ret 数组中去
+        }
+
+        return ret
+    },
+    end: function() {
+        return this.prevObject || this.constructor();
+    },
+    eq: function( i ) {
+        var len = this.length,
+            j = +i + ( i < 0 ? len : 0 );  //支持倒序搜索，i可以是负数
+        return this.pushStack( j >= 0 && j < len ? [ this[ j ] ] : [] ); //容错处理，若i过大或过小，返回空数组
+    },
+    get: function( num ) {
+        return num != null ?
+
+            // 支持倒序搜索，num可以是负数
+            ( num < 0 ? this[ num + this.length ] : this[ num ] ) :
+
+            // 克隆一个新数组，避免指向相同
+            slice.call( this );  // slice 即 [].slice，封装在 var.js 中
+    },
+    first: function() {
+        return this.eq( 0 );
+    },
+    last: function() {
+        return this.eq( -1 );
+    }
+});
 
 export default jQuery;
